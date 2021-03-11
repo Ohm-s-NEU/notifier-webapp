@@ -5,6 +5,13 @@ node{
         checkout scm
     }
 
+    stage('Build package') {
+   
+        sh ''' mvn clean
+		   mvn package 
+		'''
+    }
+
     script{
         GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
         echo "${GIT_COMMIT_HASH}"
