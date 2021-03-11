@@ -1,0 +1,59 @@
+node{
+    def app
+
+    stage('Clone repository'){
+        checkout scm
+    }
+
+    script{
+        GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
+        echo "${GIT_COMMIT_HASH}"
+    }
+
+    stage('Build Image'){
+        app = docker.build("${DOCKER_IMAGE_NOTIFIER}")
+    }
+
+    stage('Push Image'){
+
+        docker.withRegistry('https://registry.hub.docker.com','docker-hub'){
+            app.push("${GIT_COMMIT_HASH}")
+            app.push("latest")
+        }
+
+        echo "Trying to push to docker hub"
+
+    }
+
+    stage('webapp deployment') {
+        script {
+            sh"""
+            export AWS_ACCESS_KEY_ID=${aws_access_key_id}
+            export AWS_SECRET_ACCESS_KEY=${aws_secret_key}
+            export KOPS_STATE_STORE=${state_store}
+            export AWS_DEFAULT_REGION=${aws_region}
+            """
+        }
+    }
+
+    stage('Latest release from Helm Chart Repo'){
+        LINK = sh (script: "curl --location --request GET 'https://api.github.com/repos/Ohm-s-NEU/notifier-webapp-helm-chart/releases/latest' --header 'Authorization: token ${gh_token_sp}' | jq -r '.assets[0].url'",returnStdout:true)
+        echo "${LINK}"
+        script {
+            sh"""
+            curl --header 'Authorization: token ${gh_token_sp}' --header 'Accept: application/octet-stream' --output helm.tar.gz --location --request GET ${LINK}
+            tar -xvzf helm.tar.gz
+            ls -lrt
+            """
+        }
+    }
+
+    stage('Install chart') {
+        script {
+            sh"""
+            helm upgrade webapp ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
+            """
+        }
+    }
+
+}
