@@ -59,7 +59,7 @@ node{
     stage('Install chart') {
         script {
             sh"""
-            helm upgrade webapp ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
+            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
             """
         }
     }
