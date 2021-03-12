@@ -7,8 +7,9 @@ node{
 
     stage('Build package') {
    
-        sh ''' mvn clean
-		   mvn package 
+        sh ''' 
+            mvn clean
+		    mvn package 
 		'''
     }
 
