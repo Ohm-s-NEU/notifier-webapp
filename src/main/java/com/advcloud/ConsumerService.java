@@ -12,6 +12,7 @@ public final class ConsumerService {
     @KafkaListener(topics = "top", groupId = "myGroup")
     public void consumeNew(String message) {
         System.out.println(message);
+        System.out.println("Test Successful");
     }
     
 }
