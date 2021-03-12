@@ -19,17 +19,17 @@ import java.util.Properties;
 @EnableKafka
 @Configuration
 public class KafkaConsumer {
-	//@Value("${spring.kafka.bootstrap-servers}")
-	//private String bootstrapAddress;
-	//@Value("${spring.kafka.bootstrap-servers}")
-	//private String groupId;
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapAddress;
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String groupId;
 
 	    @Bean
 	    public ConsumerFactory<String, String> consumerFactory() {
 	        Map<String, Object> config = new HashMap<>();
 
-	        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "r1-kafka:9092");
-	        config.put(ConsumerConfig.GROUP_ID_CONFIG, "myGroup");
+	        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+	        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 	        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 	        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
