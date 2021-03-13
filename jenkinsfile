@@ -59,7 +59,7 @@ node{
     stage('Install chart') {
         script {
             sh"""
-            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
+            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set webapp.secret.userName=${rds_username} --set webapp.secret.password=${rds_password}  --set webapp.database.host=${notifier_db_host}  --set webapp.database.dbname=${notifier_db_name} --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
             """
         }
     }
