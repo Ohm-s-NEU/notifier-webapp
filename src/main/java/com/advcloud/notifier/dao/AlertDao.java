@@ -11,7 +11,7 @@ import com.advcloud.Model.Webapp;
 public interface AlertDao extends CrudRepository<Alert, Integer> {
 	
 
-	@Query(value= "select alert from Alert alert where alert.status=0")
+	@Query(value= "select alert from Alert alert where alert.status=1")
 	List<Alert> findAllLatestForAlert();
 	
 }
