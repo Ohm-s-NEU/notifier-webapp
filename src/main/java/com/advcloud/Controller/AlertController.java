@@ -114,10 +114,10 @@ public class AlertController {
 		// TODO Auto-generated method stub
 		// Create a Bool query
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		String a = "*"+keyword+"*";
-		System.out.println(a);
-		logger.info("Inside elastic search"+a);
-		boolQuery.must(QueryBuilders.matchQuery("title", a));
+		//String a = "*"+keyword+"*";
+		System.out.println(keyword);
+		logger.info("Inside elastic search"+keyword);
+		boolQuery.must(QueryBuilders.matchQuery("title", keyword));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
 		SearchRequest searchRequest = new SearchRequest(category);
