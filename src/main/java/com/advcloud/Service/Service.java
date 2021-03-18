@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -27,11 +28,11 @@ public class Service {
 	//private String region;
 
 	public String from = "no_reply@prod.pavan.website";
-	public String[] to = {"sekar.h@northeastern.edu"};
+	//public String[] to = {"srkantarao.p@northeastern.edu"};
 	private String templateName = "MyTemplate";
-	private String templateData = "{ \"name\":\"Jack\", \"favoriteanimal\": \"Tiger\"}";
+	//private String templateData = "{ \"name\":\"Jack\", \"favoriteanimal\": \"Tiger\"}";
 
-	public String sendEmail(Map<String, Object> data, String userName) {
+	public String sendEmail(JSONObject data, String userName) {
 
 		AWSCredentials credentials = new BasicAWSCredentials("AKIAUWJTDERIVYFIUW7C", "TDmEiLBHdlXH1sYkY8NvWC3F+ketq/svRdFFCpXp");
 		com.amazonaws.services.simpleemail.AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder
@@ -39,7 +40,7 @@ public class Service {
 
 		Destination destination = new Destination();
 		List<String> toAddresses = new ArrayList<String>();
-		String[] Emails = to;
+		String[] Emails = {userName};
 
 		for (String email : Emails) {
 			toAddresses.add(email);
@@ -49,7 +50,7 @@ public class Service {
 		SendTemplatedEmailRequest templatedEmailRequest = new SendTemplatedEmailRequest();
 		templatedEmailRequest.withDestination(destination);
 		templatedEmailRequest.withTemplate(templateName);
-		templatedEmailRequest.withTemplateData(templateData);
+		templatedEmailRequest.withTemplateData(data.toString());
 		templatedEmailRequest.withSource(from);
 		client.sendTemplatedEmail(templatedEmailRequest);
 		return "email sent";

@@ -1,6 +1,7 @@
 package com.advcloud.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.IOException;
@@ -24,6 +25,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.advcloud.KafkaProducerService;
 import com.advcloud.Model.Alert;
@@ -68,18 +71,11 @@ public class AlertController {
 
 		for (Alert a : alertList) {
 			if (a !=null) {
-				Map<String, Object> searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
+				JSONObject searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
 				if (searchedElasticData != null) {
-					boolean shootEmail = sendEmail();
+					boolean shootEmail = sendEmail(searchedElasticData, a.getUserName());
 					if (shootEmail == true) {
 						Alert finalAlert = alertService.changeMailStatus(a);
-						Webapp web = alertService.findWebappAlert(finalAlert);
-						if(web !=null) {
-							alertService.updateWebappAlert(web);
-						}else {
-							System.out.println("Error updating webapp alert db");
-						}
-						
 					}
 				} else {
 					System.out.println("Error retrieving elasticsearch data");
@@ -90,25 +86,27 @@ public class AlertController {
 		}
 	}
 
-	private boolean sendEmail() {
+	private boolean sendEmail(JSONObject data, String userName) {
+		service.sendEmail(data,userName);
 		return true;
 	}
 
 	private RestHighLevelClient restHighLevelClient() {
-		String esHost = "100.68.249.107";
+		String esHost = "127.0.0.1";
 		Integer esPort = 9200;
 		return new RestHighLevelClient(RestClient.builder(new HttpHost(esHost, esPort)));
 	}
 
-	private Map<String, Object> searchElasticIndex(String fieldType, String searchString) throws IOException {
+	private JSONObject searchElasticIndex(String category, String keyword) throws IOException {
 		// TODO Auto-generated method stub
 		// Create a Bool query
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		String a = "*"+searchString+"*";
+		String a = "*"+category+"*";
+		System.out.println(a);
 		boolQuery.must(QueryBuilders.matchQuery("title", a));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
-		SearchRequest searchRequest = new SearchRequest("topstories");
+		SearchRequest searchRequest = new SearchRequest("top");
 		// CReate a search Source
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(boolQuery);
@@ -117,18 +115,34 @@ public class AlertController {
 		SearchResponse searchResponse = restHighLevelClient().search(searchRequest, RequestOptions.DEFAULT);
 		// Parsing response
 		SearchHit[] searchHits = searchResponse.getHits().getHits();
-
 		System.out.println(searchHits);
 		if (searchHits.length == 0) {
 			return null;
 		}
-		Map<String, Object> sourceAsMap = searchHits[0].getSourceAsMap();
-		ArrayList field1 =  (ArrayList) sourceAsMap.get("id");
-		String field2 = (String) sourceAsMap.get("title");
 
-		System.out.println(field1.get(0) + "  " + field2);
+		List<Map<String, Object>> list = new ArrayList<>();		
+		for( SearchHit s : searchHits) {
+			Map<String,Object> sourceAsMap = new HashMap<>();
+			sourceAsMap.put("id",s.getSourceAsMap().get("id"));
+			sourceAsMap.put("title",s.getSourceAsMap().get("title"));
+			sourceAsMap.put("url",s.getSourceAsMap().get("url"));
+			list.add(sourceAsMap);
+		}
+		
+		List<JSONObject> jsonObj = new ArrayList<JSONObject>();
+		for(Map<String, Object> data : list) {
+		    JSONObject obj = new JSONObject(data);
+		    jsonObj.add(obj);
+		}
+		JSONArray test = new JSONArray(jsonObj);
+		
+		JSONObject res = new JSONObject();
+		res.put("data", test);
+		
+		System.out.println(res.toString());
 
-		return sourceAsMap;
+
+		return res;
 	}
 
 }
