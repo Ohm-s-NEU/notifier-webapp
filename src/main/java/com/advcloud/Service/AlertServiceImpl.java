@@ -57,6 +57,22 @@ public class AlertServiceImpl implements AlertService {
 
 	}
 	
+	public Alert changeMailStatusForAlertsNotSent(Alert a){
+
+		try {
+			if (a != null) {
+				a.setStatus(4);
+				alertDao.save(a);
+				return a;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+	
 	public Webapp findWebappAlert(Alert finalAlert) {
 		try {
 			if(finalAlert!=null) {
