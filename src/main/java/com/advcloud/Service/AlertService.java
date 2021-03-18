@@ -18,4 +18,6 @@ public interface AlertService {
 
 	void updateWebappAlert(Webapp web);
 
+	Alert changeMailStatusForAlertsNotSent(Alert a);
+
 }

@@ -90,6 +90,7 @@ public class AlertController {
 					}
 				} else {
 					logger.error("Error retrieving elasticsearch data");
+					Alert unusedAlert = alertService.changeMailStatusForAlertsNotSent(a);
 					System.out.println("Error retrieving elasticsearch data");
 				}
 			} else {
