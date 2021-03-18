@@ -95,7 +95,7 @@ public class AlertController {
 	}
 
 	private RestHighLevelClient restHighLevelClient() {
-		String esHost = "100.68.249.107";
+		String esHost = "elasticsearch-master";
 		Integer esPort = 9200;
 		return new RestHighLevelClient(RestClient.builder(new HttpHost(esHost, esPort)));
 	}
