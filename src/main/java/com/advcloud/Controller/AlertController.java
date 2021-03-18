@@ -120,7 +120,7 @@ public class AlertController {
 		boolQuery.must(QueryBuilders.matchQuery("title", a));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
-		SearchRequest searchRequest = new SearchRequest("top");
+		SearchRequest searchRequest = new SearchRequest(category);
 		// CReate a search Source
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(boolQuery);
