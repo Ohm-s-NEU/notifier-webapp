@@ -14,4 +14,8 @@ public interface AlertService {
 
 	Webapp updateAlertStatus(Webapp a);
 
+	Webapp findWebappAlert(Alert finalAlert);
+
+	void updateWebappAlert(Webapp web);
+
 }
