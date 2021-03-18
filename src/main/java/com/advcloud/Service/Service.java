@@ -32,7 +32,7 @@ public class Service {
 	private String templateName = "MyTemplate";
 	//private String templateData = "{ \"name\":\"Jack\", \"favoriteanimal\": \"Tiger\"}";
 
-	public String sendEmail(JSONObject data, String userName) {
+	public boolean sendEmail(JSONObject data, String userName) {
 
 		AWSCredentials credentials = new BasicAWSCredentials("AKIAUWJTDERIVYFIUW7C", "TDmEiLBHdlXH1sYkY8NvWC3F+ketq/svRdFFCpXp");
 		com.amazonaws.services.simpleemail.AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder
@@ -53,7 +53,7 @@ public class Service {
 		templatedEmailRequest.withTemplateData(data.toString());
 		templatedEmailRequest.withSource(from);
 		client.sendTemplatedEmail(templatedEmailRequest);
-		return "email sent";
+		return true;
 	}
 
 }
