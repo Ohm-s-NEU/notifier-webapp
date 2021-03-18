@@ -1,12 +1,10 @@
 package com.advcloud;
 
-
-
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public final class ConsumerService {
+public final class KafkaConsumerService {
     
 
     @KafkaListener(topics = "top", groupId = "myGroup")
