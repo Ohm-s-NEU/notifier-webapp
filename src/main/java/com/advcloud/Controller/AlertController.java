@@ -35,6 +35,8 @@ import com.advcloud.Service.AlertService;
 import com.advcloud.Service.Service;
 import com.advcloud.notifier.dao.AlertDao;
 import com.advcloud.webapp.dao.WebappDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @Component
@@ -54,6 +56,8 @@ public class AlertController {
 
 	@Autowired
 	KafkaProducerService kafkaProducerService;
+	
+	private static final Logger logger = LoggerFactory.getLogger(AlertController.class);
 
 	@Scheduled(initialDelay = 0, fixedRate = 300000)
 	public void startNotifierEvery5mins() throws IOException {
@@ -65,22 +69,31 @@ public class AlertController {
 			Alert returnedAlert = (Alert) alertService.addAlertsToNotifierDB(a);
 			Webapp initialwebapp = alertService.updateAlertStatus(a);
 		}
+		
+		logger.info("webappList worked");
 
 		List<Alert> alertList = new ArrayList<Alert>();
 		alertList = alertDao.findAllLatestForAlert();
+		
+		logger.info("alertList worked");
 
 		for (Alert a : alertList) {
 			if (a !=null) {
+				logger.info("Inside alertList");
 				JSONObject searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
+				logger.info("elasticsearch done");
 				if (searchedElasticData != null) {
+					logger.info("Shooting email");
 					boolean shootEmail = sendEmail(searchedElasticData, a.getUserName());
 					if (shootEmail == true) {
 						Alert finalAlert = alertService.changeMailStatus(a);
 					}
 				} else {
+					logger.error("Error retrieving elasticsearch data");
 					System.out.println("Error retrieving elasticsearch data");
 				}
 			} else {
+				logger.error("Error accessing notifierAlerts table");
 				System.out.println("Error accessing notifierAlerts table");
 			}
 		}
@@ -103,6 +116,7 @@ public class AlertController {
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 		String a = "*"+category+"*";
 		System.out.println(a);
+		logger.info("Inside elastic search"+a);
 		boolQuery.must(QueryBuilders.matchQuery("title", a));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
@@ -116,6 +130,7 @@ public class AlertController {
 		// Parsing response
 		SearchHit[] searchHits = searchResponse.getHits().getHits();
 		System.out.println(searchHits);
+		logger.info("searchHits"+searchHits);
 		if (searchHits.length == 0) {
 			return null;
 		}
@@ -140,6 +155,7 @@ public class AlertController {
 		res.put("data", test);
 		
 		System.out.println(res.toString());
+		logger.info("res"+res.toString());
 
 
 		return res;
