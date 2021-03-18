@@ -56,6 +56,23 @@ public class AlertServiceImpl implements AlertService {
 		}
 
 	}
+	
+	public Webapp findWebappAlert(Alert finalAlert) {
+		try {
+			if(finalAlert!=null) {
+				Webapp webapp = webappDao.findExistingAlert(finalAlert.getId(),finalAlert.getUserName());
+				if(webapp !=null) {
+					return webapp;
+				}else {
+					return null;
+				}	
+			}
+			return null;
+		}catch(Exception e ) {
+			return null;
+		}
+		
+	}
 
 	public Webapp updateAlertStatus(Webapp a) {
 		try {
@@ -71,6 +88,18 @@ public class AlertServiceImpl implements AlertService {
 		}
 	}
 
+	public void updateWebappAlert(Webapp web) {
+		try {
+			if(web !=null) {
+				web.setStatus(2);
+				webappDao.save(web);
+			}else {
+				System.out.println("Error updating webapp alert db");
+			}
+		}catch(Exception e) {
+			System.out.println("Error occured. At Exception");
+		}
+	}
 	
 
 

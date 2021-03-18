@@ -70,14 +70,16 @@ public class AlertController {
 			if (a !=null) {
 				Map<String, Object> searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
 				if (searchedElasticData != null) {
-					boolean shootEmail = sendEmail(searchedElasticData, a.getUserName());
+					boolean shootEmail = sendEmail();
 					if (shootEmail == true) {
 						Alert finalAlert = alertService.changeMailStatus(a);
-						//if (finalAlert != null) {
-							//this.kafkaProducerService.sendMessage(finalAlert);
-						//} else {
-							//System.out.println("Error sending mail and error sending message to kafka queue");
-						//}
+						Webapp web = alertService.findWebappAlert(finalAlert);
+						if(web !=null) {
+							alertService.updateWebappAlert(web);
+						}else {
+							System.out.println("Error updating webapp alert db");
+						}
+						
 					}
 				} else {
 					System.out.println("Error retrieving elasticsearch data");
@@ -88,8 +90,7 @@ public class AlertController {
 		}
 	}
 
-	private boolean sendEmail(Map<String, Object> data, String userName) {
-		service.sendEmail(data,userName);
+	private boolean sendEmail() {
 		return true;
 	}
 
@@ -103,7 +104,8 @@ public class AlertController {
 		// TODO Auto-generated method stub
 		// Create a Bool query
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		boolQuery.must(QueryBuilders.matchQuery("title", searchString));
+		String a = "*"+searchString+"*";
+		boolQuery.must(QueryBuilders.matchQuery("title", a));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
 		SearchRequest searchRequest = new SearchRequest("topstories");

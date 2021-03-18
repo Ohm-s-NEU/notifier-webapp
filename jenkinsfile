@@ -59,7 +59,7 @@ node{
     stage('Install chart') {
         script {
             sh"""
-            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set webapp.secret.userName=${rds_username} --set webapp.secret.password=${rds_password}  --set webapp.database.host=${notifier_db_host}  --set webapp.database.dbname=${notifier_db_name} --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
+            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set webapp.secret.userName="" --set webapp.secret.password="admin"  --set webapp.database.host="jdbc:mysql://notifier.cc4wlaexhbj2.us-east-1.rds.amazonaws.com/notifier?useSSL=false&useUnicode=yes&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC"  --set webapp.database.dbname="password" --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier} 
             """
         }
     }
