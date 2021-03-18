@@ -123,10 +123,10 @@ public class AlertController {
 			return null;
 		}
 		Map<String, Object> sourceAsMap = searchHits[0].getSourceAsMap();
-		Integer field1 = (Integer) sourceAsMap.get("id");
+		ArrayList field1 =  (ArrayList) sourceAsMap.get("id");
 		String field2 = (String) sourceAsMap.get("title");
 
-		System.out.println(field1 + "  " + field2);
+		System.out.println(field1.get(0) + "  " + field2);
 
 		return sourceAsMap;
 	}
