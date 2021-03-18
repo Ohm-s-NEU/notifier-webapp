@@ -114,7 +114,7 @@ public class AlertController {
 		// TODO Auto-generated method stub
 		// Create a Bool query
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		String a = "*"+category+"*";
+		String a = "*"+keyword+"*";
 		System.out.println(a);
 		logger.info("Inside elastic search"+a);
 		boolQuery.must(QueryBuilders.matchQuery("title", a));
