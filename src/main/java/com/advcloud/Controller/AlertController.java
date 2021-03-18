@@ -118,7 +118,7 @@ public class AlertController {
 		//String a = "*"+keyword+"*";
 		System.out.println(keyword);
 		logger.info("Inside elastic search"+keyword);
-		boolQuery.must(QueryBuilders.matchQuery("title", keyword));
+		boolQuery.must(QueryBuilders.matchQuery("title", "*"+keyword+"*"));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
 		SearchRequest searchRequest = new SearchRequest(category);
