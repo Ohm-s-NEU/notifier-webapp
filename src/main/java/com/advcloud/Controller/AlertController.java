@@ -53,10 +53,10 @@ public class AlertController {
 
 	@Autowired
 	AlertDao alertDao;
-	
+
 	@Value("${esHost}")
 	private String esHost;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AlertController.class);
 
 	@Scheduled(initialDelay = 0, fixedRate = 60000)
@@ -69,16 +69,16 @@ public class AlertController {
 			Alert returnedAlert = (Alert) alertService.addAlertsToNotifierDB(a);
 			Webapp initialwebapp = alertService.updateAlertStatus(a);
 		}
-		
+
 		logger.info("webappList worked");
 
 		List<Alert> alertList = new ArrayList<Alert>();
 		alertList = alertDao.findAllLatestForAlert();
-		
+
 		logger.info("alertList worked");
 
 		for (Alert a : alertList) {
-			if (a !=null) {
+			if (a != null) {
 				logger.info("Inside alertList");
 				JSONObject searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
 				logger.info("elasticsearch done");
@@ -87,11 +87,26 @@ public class AlertController {
 					boolean shootEmail = sendEmail(searchedElasticData, a.getUserName());
 					if (shootEmail == true) {
 						Alert finalAlert = alertService.changeMailStatus(a);
+						if (finalAlert != null) {
+							logger.info("Updated mail status to 2 in notifier");
+						} else {
+							logger.error("Error updating mail status to 2 in notifier");
+						}
+						Webapp web = alertService.updateAlertStatusAfterMailSentInWebapp(a);
+						if (web != null) {
+							logger.info("Updated mail status to 2 in webapp");
+						} else {
+							logger.error("Error updating mail status to 2 in webapp");
+						}
 					}
 				} else {
 					logger.error("Error retrieving elasticsearch data");
 					Alert unusedAlert = alertService.changeMailStatusForAlertsNotSent(a);
-					System.out.println("Error retrieving elasticsearch data");
+					if (unusedAlert != null) {
+						logger.info("Updated mail status to 4 in notifier and webapp");
+					} else {
+						logger.error("Error updating mail status to 4 in webapp and notifier");
+					}
 				}
 			} else {
 				logger.error("Error accessing notifierAlerts table");
@@ -101,7 +116,7 @@ public class AlertController {
 	}
 
 	private boolean sendEmail(JSONObject data, String userName) {
-		service.sendEmail(data,userName);
+		service.sendEmail(data, userName);
 		return true;
 	}
 
@@ -114,10 +129,10 @@ public class AlertController {
 		// TODO Auto-generated method stub
 		// Create a Bool query
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		//String a = "*"+keyword+"*";
+		// String a = "*"+keyword+"*";
 		System.out.println(keyword);
-		logger.info("Inside elastic search"+keyword);
-		boolQuery.must(QueryBuilders.matchQuery("title", "*"+keyword+"*"));
+		logger.info("Inside elastic search" + keyword);
+		boolQuery.must(QueryBuilders.matchQuery("title", "*" + keyword + "*"));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
 		SearchRequest searchRequest = new SearchRequest(category);
@@ -130,32 +145,31 @@ public class AlertController {
 		// Parsing response
 		SearchHit[] searchHits = searchResponse.getHits().getHits();
 		System.out.println(searchHits);
-		logger.info("searchHits"+searchHits);
+		logger.info("searchHits" + searchHits);
 		if (searchHits.length == 0) {
 			return null;
 		}
 
-		List<Map<String, Object>> list = new ArrayList<>();		
-		for( SearchHit s : searchHits) {
-			Map<String,Object> sourceAsMap = new HashMap<>();
-			sourceAsMap.put("title",s.getSourceAsMap().get("title"));
-			sourceAsMap.put("url",s.getSourceAsMap().get("url"));
+		List<Map<String, Object>> list = new ArrayList<>();
+		for (SearchHit s : searchHits) {
+			Map<String, Object> sourceAsMap = new HashMap<>();
+			sourceAsMap.put("title", s.getSourceAsMap().get("title"));
+			sourceAsMap.put("url", s.getSourceAsMap().get("url"));
 			list.add(sourceAsMap);
 		}
-		
+
 		List<JSONObject> jsonObj = new ArrayList<JSONObject>();
-		for(Map<String, Object> data : list) {
-		    JSONObject obj = new JSONObject(data);
-		    jsonObj.add(obj);
+		for (Map<String, Object> data : list) {
+			JSONObject obj = new JSONObject(data);
+			jsonObj.add(obj);
 		}
 		JSONArray test = new JSONArray(jsonObj);
-		
+
 		JSONObject res = new JSONObject();
 		res.put("data", test);
-		
-		System.out.println(res.toString());
-		logger.info("res"+res.toString());
 
+		System.out.println(res.toString());
+		logger.info("res" + res.toString());
 
 		return res;
 	}

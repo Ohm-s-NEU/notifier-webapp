@@ -56,13 +56,18 @@ public class AlertServiceImpl implements AlertService {
 		}
 
 	}
-	
-	public Alert changeMailStatusForAlertsNotSent(Alert a){
+
+	public Alert changeMailStatusForAlertsNotSent(Alert a) {
 
 		try {
 			if (a != null) {
 				a.setStatus(4);
 				alertDao.save(a);
+				Webapp webapp = webappDao.findExistingAlert(a.getId(), a.getUserName());
+				if (webapp != null) {
+					webapp.setStatus(4);
+					webappDao.save(webapp);
+				}
 				return a;
 			} else {
 				return null;
@@ -72,22 +77,22 @@ public class AlertServiceImpl implements AlertService {
 		}
 
 	}
-	
+
 	public Webapp findWebappAlert(Alert finalAlert) {
 		try {
-			if(finalAlert!=null) {
-				Webapp webapp = webappDao.findExistingAlert(finalAlert.getId(),finalAlert.getUserName());
-				if(webapp !=null) {
+			if (finalAlert != null) {
+				Webapp webapp = webappDao.findExistingAlert(finalAlert.getId(), finalAlert.getUserName());
+				if (webapp != null) {
 					return webapp;
-				}else {
+				} else {
 					return null;
-				}	
+				}
 			}
 			return null;
-		}catch(Exception e ) {
+		} catch (Exception e) {
 			return null;
 		}
-		
+
 	}
 
 	public Webapp updateAlertStatus(Webapp a) {
@@ -106,17 +111,33 @@ public class AlertServiceImpl implements AlertService {
 
 	public void updateWebappAlert(Webapp web) {
 		try {
-			if(web !=null) {
+			if (web != null) {
 				web.setStatus(2);
 				webappDao.save(web);
-			}else {
+			} else {
 				System.out.println("Error updating webapp alert db");
 			}
-		}catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println("Error occured. At Exception");
 		}
 	}
-	
 
+	public Webapp updateAlertStatusAfterMailSentInWebapp(Alert a) {
+		try {
+			if (a != null) {
+				Webapp webapp = webappDao.findExistingAlert(a.getId(), a.getUserName());
+				if (webapp != null) {
+					webapp.setStatus(2);
+					webappDao.save(webapp);
+					return webapp;
+				} else {
+					return null;
+				}
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 }

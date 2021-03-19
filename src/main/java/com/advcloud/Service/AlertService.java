@@ -20,4 +20,6 @@ public interface AlertService {
 
 	Alert changeMailStatusForAlertsNotSent(Alert a);
 
+	Webapp updateAlertStatusAfterMailSentInWebapp(Alert a);
+
 }
