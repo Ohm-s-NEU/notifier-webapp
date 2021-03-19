@@ -28,7 +28,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.advcloud.KafkaProducerService;
 import com.advcloud.Model.Alert;
 import com.advcloud.Model.Webapp;
 import com.advcloud.Service.AlertService;
@@ -53,9 +52,6 @@ public class AlertController {
 
 	@Autowired
 	AlertDao alertDao;
-
-	@Autowired
-	KafkaProducerService kafkaProducerService;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AlertController.class);
 
