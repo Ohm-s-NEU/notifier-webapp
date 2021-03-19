@@ -135,7 +135,6 @@ public class AlertController {
 		List<Map<String, Object>> list = new ArrayList<>();		
 		for( SearchHit s : searchHits) {
 			Map<String,Object> sourceAsMap = new HashMap<>();
-			sourceAsMap.put("id",s.getSourceAsMap().get("id"));
 			sourceAsMap.put("title",s.getSourceAsMap().get("title"));
 			sourceAsMap.put("url",s.getSourceAsMap().get("url"));
 			list.add(sourceAsMap);
