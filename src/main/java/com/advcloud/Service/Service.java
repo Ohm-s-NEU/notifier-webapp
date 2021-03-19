@@ -18,14 +18,14 @@ import com.amazonaws.services.simpleemail.model.SendTemplatedEmailRequest;
 @org.springframework.stereotype.Service
 public class Service {
 
-	@Value("${accessKey}")
-	private String accessKey;
+	//@Value("${accessKey}")
+	//private String accessKey;
 
-	@Value("${secretKey}")
-	private String secretKey;
+	//@Value("${secretKey}")
+	//private String secretKey;
 
-	@Value("${region}")
-	private String region;
+	//@Value("${region}")
+	//private String region;
 
 	public String from = "no_reply@prod.pavan.website";
 	//public String[] to = {"srkantarao.p@northeastern.edu"};
@@ -34,9 +34,9 @@ public class Service {
 
 	public boolean sendEmail(JSONObject data, String userName) {
 
-		AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+		AWSCredentials credentials = new BasicAWSCredentials("AKIAUWJTDERIVYFIUW7C", "TDmEiLBHdlXH1sYkY8NvWC3F+ketq/svRdFFCpXp");
 		com.amazonaws.services.simpleemail.AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder
-				.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();
+				.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion("us-east-1").build();
 
 		Destination destination = new Destination();
 		List<String> toAddresses = new ArrayList<String>();
