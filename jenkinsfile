@@ -59,7 +59,7 @@ node{
     stage('Install chart') {
         script {
             sh"""
-            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set notifier.secret.userName=${notifier_username} --set notifier.secret.password=${notifier_password} --set webapp.secret.userName=${webapp_username} --set webapp.secret.password=${webapp_password} --set webapp.database.dbname=${webapp_db} --set webapp.database.host=${webapp_host} --set aws.aws_access_key_id=${aws_access_key_id} --set aws.aws_secret_key=${aws_secret_key} --set aws.aws_region=${aws_region} --set notifier.database.dbname=${notifier_db} --set notifier.database.host=${notifier_host} --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier}
+            helm upgrade notifier ./notifierhelm --install --wait --debug --kubeconfig="/home/ubuntu/config" --set es.esHost=${esHost} --set notifier.secret.userName=${notifier_username} --set notifier.secret.password=${notifier_password} --set webapp.secret.userName=${webapp_username} --set webapp.secret.password=${webapp_password} --set webapp.database.dbname=${webapp_db} --set webapp.database.host=${webapp_host} --set aws.aws_access_key_id=${aws_access_key_id} --set aws.aws_secret_key=${aws_secret_key} --set aws.aws_region=${aws_region} --set notifier.database.dbname=${notifier_db} --set notifier.database.host=${notifier_host} --set imagePullSecrets=${imagePullSecrets} --set image.repository=${image_notifier}
             """
         }
     }
