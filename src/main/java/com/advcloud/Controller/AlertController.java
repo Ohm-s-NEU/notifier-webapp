@@ -7,6 +7,7 @@ import java.util.Map;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -52,6 +53,12 @@ public class AlertController {
 
 	@Autowired
 	AlertDao alertDao;
+	
+	@Value("${esHost}")
+	private String esHost;
+
+	@Value("${esPort}")
+	private int esPort;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AlertController.class);
 
@@ -102,8 +109,6 @@ public class AlertController {
 	}
 
 	private RestHighLevelClient restHighLevelClient() {
-		String esHost = "100.71.110.133";
-		Integer esPort = 9200;
 		return new RestHighLevelClient(RestClient.builder(new HttpHost(esHost, esPort)));
 	}
 
