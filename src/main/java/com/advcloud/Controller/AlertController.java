@@ -56,9 +56,6 @@ public class AlertController {
 	
 	@Value("${esHost}")
 	private String esHost;
-
-	@Value("${esPort}")
-	private int esPort;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AlertController.class);
 
@@ -109,6 +106,7 @@ public class AlertController {
 	}
 
 	private RestHighLevelClient restHighLevelClient() {
+		int esPort = 9200;
 		return new RestHighLevelClient(RestClient.builder(new HttpHost(esHost, esPort)));
 	}
 
