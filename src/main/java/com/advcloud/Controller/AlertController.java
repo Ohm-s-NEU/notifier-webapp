@@ -59,7 +59,7 @@ public class AlertController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlertController.class);
 
-	@Scheduled(initialDelay = 0, fixedRate = 60000)
+	@Scheduled(initialDelay = 0, fixedRate = 300000)
 	public void startNotifierEvery5mins() throws IOException {
 
 		List<Webapp> webappList = new ArrayList<Webapp>();
