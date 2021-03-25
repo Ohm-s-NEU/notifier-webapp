@@ -16,7 +16,7 @@ import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.SendTemplatedEmailRequest;
 
 @org.springframework.stereotype.Service
-public class Service {
+public class SESService {
 
 	@Value("${accessKey}")
 	private String accessKey;
