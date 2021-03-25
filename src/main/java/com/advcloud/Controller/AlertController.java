@@ -32,7 +32,7 @@ import org.json.JSONObject;
 import com.advcloud.Model.Alert;
 import com.advcloud.Model.Webapp;
 import com.advcloud.Service.AlertService;
-import com.advcloud.Service.Service;
+import com.advcloud.Service.SESService;
 import com.advcloud.notifier.dao.AlertDao;
 import com.advcloud.webapp.dao.WebappDao;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class AlertController {
 
 	@Autowired
-	private Service service;
+	private SESService sesService;
 
 	@Autowired
 	AlertService alertService;
@@ -61,6 +61,7 @@ public class AlertController {
 
 	@Scheduled(initialDelay = 0, fixedRate = 300000)
 	public void startNotifierEvery5mins() throws IOException {
+		logger.info("Thread started to run in an interval of 5 minutes");
 
 		List<Webapp> webappList = new ArrayList<Webapp>();
 		webappList = webappDao.findAllLatest();
@@ -70,54 +71,61 @@ public class AlertController {
 			Webapp initialwebapp = alertService.updateAlertStatus(a);
 		}
 
-		logger.info("webappList worked");
+		logger.info("Alerts from Webapp DB are inserted in Notifier DB");
 
 		List<Alert> alertList = new ArrayList<Alert>();
 		alertList = alertDao.findAllLatestForAlert();
 
-		logger.info("alertList worked");
+		logger.info("List of Latest Alerts Selected");
 
 		for (Alert a : alertList) {
 			if (a != null) {
-				logger.info("Inside alertList");
+				logger.info("Elasticsearch in progress");
 				JSONObject searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
-				logger.info("elasticsearch done");
+				logger.info("Elasticsearch completed");
 				if (searchedElasticData != null) {
 					logger.info("Shooting email");
 					boolean shootEmail = sendEmail(searchedElasticData, a.getUserName());
 					if (shootEmail == true) {
 						Alert finalAlert = alertService.changeMailStatus(a);
 						if (finalAlert != null) {
-							logger.info("Updated mail status to 2 in notifier");
+							logger.info("Updated mail status as sent in notifier db");
 						} else {
-							logger.error("Error updating mail status to 2 in notifier");
+							logger.warn("Error updating mail status as sent in notifier db");
 						}
 						Webapp web = alertService.updateAlertStatusAfterMailSentInWebapp(a);
 						if (web != null) {
-							logger.info("Updated mail status to 2 in webapp");
+							logger.info("Updated mail status as sent in webapp db");
 						} else {
-							logger.error("Error updating mail status to 2 in webapp");
+							logger.warn("Error updating mail status as sent in webapp db");
 						}
+					} else {
+						logger.error("Error sending mail");
 					}
 				} else {
-					logger.error("Error retrieving elasticsearch data");
+					logger.warn("Error retrieving elasticsearch data");
 					Alert unusedAlert = alertService.changeMailStatusForAlertsNotSent(a);
 					if (unusedAlert != null) {
-						logger.info("Updated mail status to 4 in notifier and webapp");
+						logger.info("Updated mail status as unsent in notifier db and webapp db");
 					} else {
-						logger.error("Error updating mail status to 4 in webapp and notifier");
+						logger.warn("Error updating mail status as unsent in webapp db and notifier db");
 					}
 				}
 			} else {
-				logger.error("Error accessing notifierAlerts table");
-				System.out.println("Error accessing notifierAlerts table");
+				logger.warn("Error accessing notifier db table");
 			}
 		}
 	}
 
 	private boolean sendEmail(JSONObject data, String userName) {
-		service.sendEmail(data, userName);
-		return true;
+		boolean mail = sesService.sendEmail(data, userName);
+		if (mail = true) {
+			logger.info("Mail has been sent through SES");
+			return true;
+		} else {
+			logger.error("Error triggering mail through SES");
+			return false;
+		}
 	}
 
 	private RestHighLevelClient restHighLevelClient() {
@@ -129,9 +137,6 @@ public class AlertController {
 		// TODO Auto-generated method stub
 		// Create a Bool query
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		// String a = "*"+keyword+"*";
-		System.out.println(keyword);
-		logger.info("Inside elastic search" + keyword);
 		boolQuery.must(QueryBuilders.matchQuery("title", "*" + keyword + "*"));
 		// Create a search request
 		// pass your indexes in place of indexA, indexB
@@ -144,10 +149,11 @@ public class AlertController {
 		SearchResponse searchResponse = restHighLevelClient().search(searchRequest, RequestOptions.DEFAULT);
 		// Parsing response
 		SearchHit[] searchHits = searchResponse.getHits().getHits();
-		System.out.println(searchHits);
-		logger.info("searchHits" + searchHits);
 		if (searchHits.length == 0) {
+			logger.warn("No elastic search match found");
 			return null;
+		} else {
+			logger.info("Elastic search match found");
 		}
 
 		List<Map<String, Object>> list = new ArrayList<>();
@@ -166,11 +172,7 @@ public class AlertController {
 		JSONArray test = new JSONArray(jsonObj);
 
 		JSONObject res = new JSONObject();
-		res.put("data", test);
-
-		System.out.println(res.toString());
-		logger.info("res" + res.toString());
-
+		logger.info("Added elastic search match to json object");
 		return res;
 	}
 

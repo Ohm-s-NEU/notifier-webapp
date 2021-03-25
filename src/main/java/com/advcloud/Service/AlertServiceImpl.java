@@ -2,9 +2,12 @@ package com.advcloud.Service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.advcloud.Controller.AlertController;
 import com.advcloud.Model.Alert;
 import com.advcloud.Model.Webapp;
 import com.advcloud.notifier.dao.AlertDao;
@@ -19,6 +22,8 @@ public class AlertServiceImpl implements AlertService {
 
 	@Autowired
 	private AlertDao alertDao;
+	
+	private static final Logger logger = LoggerFactory.getLogger(AlertServiceImpl.class);
 
 	public Alert addAlertsToNotifierDB(Webapp a) {
 
@@ -36,6 +41,7 @@ public class AlertServiceImpl implements AlertService {
 				return null;
 			}
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 
@@ -52,6 +58,7 @@ public class AlertServiceImpl implements AlertService {
 				return null;
 			}
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 
@@ -73,6 +80,7 @@ public class AlertServiceImpl implements AlertService {
 				return null;
 			}
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 
@@ -90,6 +98,7 @@ public class AlertServiceImpl implements AlertService {
 			}
 			return null;
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 
@@ -105,6 +114,7 @@ public class AlertServiceImpl implements AlertService {
 				return null;
 			}
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 	}
@@ -115,10 +125,10 @@ public class AlertServiceImpl implements AlertService {
 				web.setStatus(2);
 				webappDao.save(web);
 			} else {
-				System.out.println("Error updating webapp alert db");
+				logger.warn("Error updating webapp alert db");
 			}
 		} catch (Exception e) {
-			System.out.println("Error occured. At Exception");
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -136,6 +146,7 @@ public class AlertServiceImpl implements AlertService {
 			}
 			return null;
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 	}
