@@ -12,6 +12,11 @@ import com.advcloud.Model.Alert;
 import com.advcloud.Model.Webapp;
 import com.advcloud.notifier.dao.AlertDao;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+
+
+
 import com.advcloud.webapp.dao.WebappDao;
 
 @Service
@@ -22,6 +27,11 @@ public class AlertServiceImpl implements AlertService {
 
 	@Autowired
 	private AlertDao alertDao;
+	
+	@Autowired
+    MeterRegistry registry;
+	
+	Timer alertTimer;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AlertServiceImpl.class);
 
@@ -35,7 +45,9 @@ public class AlertServiceImpl implements AlertService {
 				alert.setKeyword(a.getKeyword());
 				alert.setId(a.getId());
 				alert.setStatus(1);
-				alertDao.save(alert);
+				alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Add_Alerts_to_NotifierDB");
+				alertTimer.record(()->alertDao.save(alert));
+				logger.info("Alert added to notifier db");
 				return alert;
 			} else {
 				return null;
@@ -52,7 +64,9 @@ public class AlertServiceImpl implements AlertService {
 		try {
 			if (alert != null) {
 				alert.setStatus(2);
-				alertDao.save(alert);
+				alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Update_Mail_Status_NotifierDB");
+				alertTimer.record(()->alertDao.save(alert));
+				logger.info("Updated status in notifier db");
 				return alert;
 			} else {
 				return null;
@@ -70,10 +84,15 @@ public class AlertServiceImpl implements AlertService {
 			if (a != null) {
 				a.setStatus(4);
 				alertDao.save(a);
+				alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Update_Unsent_Mail_Status_WebappDB");
+				alertTimer.record(()->alertDao.save(a));
+				logger.info("Updated unsent mail status in webapp db");
 				Webapp webapp = webappDao.findExistingAlert(a.getId(), a.getUserName());
 				if (webapp != null) {
 					webapp.setStatus(4);
-					webappDao.save(webapp);
+					alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Update_Unsent_Mail_Status_NotifierDB");
+					alertTimer.record(()->webappDao.save(webapp));
+					logger.info("Updated unsent mail status in notifier db");	
 				}
 				return a;
 			} else {
@@ -109,6 +128,9 @@ public class AlertServiceImpl implements AlertService {
 			if (a != null) {
 				a.setStatus(1);
 				webappDao.save(a);
+				alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Update_Alert_Status_WebappDB");
+				alertTimer.record(()->webappDao.save(a));
+				logger.info("Updated alert status in webapp db");
 				return a;
 			} else {
 				return null;
@@ -123,7 +145,9 @@ public class AlertServiceImpl implements AlertService {
 		try {
 			if (web != null) {
 				web.setStatus(2);
-				webappDao.save(web);
+				alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Update_Alert_Status_WebappDB");
+				alertTimer.record(()->webappDao.save(web));
+				logger.info("Updated alert status in webapp db");
 			} else {
 				logger.warn("Error updating webapp alert db");
 			}
@@ -138,9 +162,12 @@ public class AlertServiceImpl implements AlertService {
 				Webapp webapp = webappDao.findExistingAlert(a.getId(), a.getUserName());
 				if (webapp != null) {
 					webapp.setStatus(2);
-					webappDao.save(webapp);
+					alertTimer = registry.timer("custom.metrics.timer", "Notifier", "Update_Alert_Status_WebappDB");
+					alertTimer.record(()->webappDao.save(webapp));
+					logger.info("Updated alert status in webapp db");
 					return webapp;
 				} else {
+					logger.warn("Error updating webapp db");
 					return null;
 				}
 			}
