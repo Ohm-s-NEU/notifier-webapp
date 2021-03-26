@@ -7,4 +7,4 @@ ARG JAR_FILE=target/notifier-webapp-0.0.1-SNAPSHOT.jar
 # Add the application's jar to the container
 ADD ${JAR_FILE} notifier.jar
 # Run the jar file
-ENTRYPOINT java -Dserver.port=3000 -jar notifier.jar
+ENTRYPOINT java -Dserver.port=8080 -jar notifier.jar
