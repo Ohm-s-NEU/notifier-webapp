@@ -82,6 +82,7 @@ public class AlertController {
 			if (a != null) {
 				logger.info("Elasticsearch in progress");
 				JSONObject searchedElasticData = searchElasticIndex(a.getCategory(), a.getKeyword());
+				logger.info("elasticSearchData =", searchedElasticData);
 				logger.info("Elasticsearch completed");
 				if (searchedElasticData != null) {
 					logger.info("Shooting email");
@@ -170,8 +171,9 @@ public class AlertController {
 			jsonObj.add(obj);
 		}
 		JSONArray test = new JSONArray(jsonObj);
-
+		
 		JSONObject res = new JSONObject();
+		res.put("data", test);
 		logger.info("Added elastic search match to json object");
 		return res;
 	}
