@@ -64,7 +64,7 @@ node{
             """
             }
             if(env.cloud == 'gke'){
-                      withCredentials([file(credentialsId: 'sa', variable: 'GC_KEY')]) {
+                      withCredentials([file(credentialsId: ${secret}, variable: 'GC_KEY')]) {
                         sh("gcloud auth activate-service-account ${serviceaccount} --key-file=${GC_KEY}")
                         sh("gcloud container clusters get-credentials ${cluster_name} --region=${region} --project ${project}")
                       }
