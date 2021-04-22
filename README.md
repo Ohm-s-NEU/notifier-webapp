@@ -26,7 +26,7 @@ Add all the variables that are mentioned in the jenkins file as Jenkins EV
 Setting the github
 
 Open the github repository and add the webhook for the Jenkins server under settings>webhooks option
-Provide the payload url(url where jenkins is hosted) and append /github-webhook/ in the end. Example: jenkins.harrsinisekar.me
+Provide the payload url(url where jenkins is hosted) and append /github-webhook/ in the end. Example: jenkins.pavan.website
 Content type: application/json
 Save the Webhook
 Triggering the job
